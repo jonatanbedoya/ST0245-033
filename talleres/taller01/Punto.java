@@ -39,7 +39,7 @@ public class Punto {
      */
 
     public double radioPolar() {
-        return Math.sqrt(x * x + y * y);
+        return Math.sqrt((x * x) + (y * y));
     }
 
     /**
