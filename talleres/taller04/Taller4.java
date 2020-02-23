@@ -1,5 +1,5 @@
 
-public class Taller5 {
+public class Taller4 {
 
     /**
      * @param array es un arreglo de numeros enteros
