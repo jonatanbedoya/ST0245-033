@@ -50,8 +50,8 @@ public class Taller4 {
      */
     public static long fibonacci(int n) { 
         if (n <= 1) 
-            return _____ ;  
+            return n;  
         else 
-            return __________ + fibonacci(n-2);
+            return fibonacci(n-1) + fibonacci(n-2);
     }
 }
