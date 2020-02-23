@@ -1,13 +1,13 @@
 /**
  * Programa que muestra la manera en la que se utilizan
  * permutaciones en la vida diaria.
- * @author Jonatan and Andrés
+ * @author Jonatan and AndrÃ©s
  */
 import java.util.*;
-class talleres{
+class taller3{
   public static void main(String[] args) {
     try (Scanner e = new Scanner(System.in)) {
-		System.out.print("Ingrese por favor el número de fichas en el juego: ");
+		System.out.print("Ingrese por favor el nÃºmero de fichas en el juego: ");
 		int f = e.nextInt();
 		String a1 = "T1";
 		String b1 = "T2";
@@ -20,16 +20,16 @@ class talleres{
   }
   /** Programa que muestra la manera de mover una ficha
 	 * en el juego de Torres de Hanoi con tres torres y n fichas.
-	 * @author Jonatan and Andrés
+	 * @author Jonatan and AndrÃ©s
    */
 	public static void TowerHanoi(int n, String a, String b,String c) {
 		if(n<=0) {
 			System.out.println("Sin movimientos");
 		}else if(n==1) {
-			System.out.println("Por favor mover: "+a+" a posición: "+c);
+			System.out.println("Por favor mover: "+a+" a posiciÃ³n: "+c);
 		}else {
 			TowerHanoi(n-1,a,c,b);
-			System.out.println("Por favor mover: "+a+" a posición: "+c);
+			System.out.println("Por favor mover: "+a+" a posiciÃ³n: "+c);
 			TowerHanoi(n-1,b,a,c);
 			}
 	}
