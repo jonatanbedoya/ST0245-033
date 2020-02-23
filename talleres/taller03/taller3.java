@@ -18,7 +18,7 @@ class taller3{
     	perm(cadena,"");*/
 	  }
   }
-  /** Programa que muestra la manera de mover una ficha
+  /** Programa que muestra la manera de mover una ficha con recursión
 	 * en el juego de Torres de Hanoi con tres torres y n fichas.
 	 * @author Jonatan and Andrés
    */
