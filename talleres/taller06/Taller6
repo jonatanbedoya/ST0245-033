@@ -63,7 +63,7 @@ public class MiArrayList {
     * Agrega un elemento e en la posición index de la lista
     */
     public void add throw Exception(int index, int e) {
-      if (index < 0) // C1 es O(1)
+      if (index < 0)
          throw new Exception("Index out of bounds exception index = "+index);
       else
       elements[index] = e;
@@ -73,7 +73,14 @@ public class MiArrayList {
     * @param index es la posicion en la cual se va eliminar el elemento
     * ELimina el elemento  en la posición index de la lista
     */
-    public void del(int index){
-        //...
+    public void del throw Exception(int index){
+      if (index < 0 || index==elements.length-1)
+         throw new Exception("Index out of bounds exception index = "+index);
+         else
+         for(int i=index;i<elements.length;i++){
+             elements[i] = elements[i+1];
+           if(i==elements.length-1)
+             elements[i] = null;
+         }
     }
 }
