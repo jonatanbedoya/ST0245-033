@@ -1,44 +1,61 @@
-
+//Java
 class Node{
-  Node izq, der;
-  int dato;
-  public Node(int d){
-    dato = d;
+  Node izq, der;//se crean dos nodos
+  int dato; //un dato entero sin valor
+  public Node(int d){ 
+    dato = d; //se le da un valor al dato
   }
   public void insertar(int valor){
     if(valor <= dato){
-     if(izq == null){
-       izq = new Node(valor);
+     if(izq == null){ //se comprueba si el nodo izq está vacio
+       izq = new Node(valor); //se le da un valor al nodo izq
        }else{
-        izq.insertar(valor);
+        izq.insertar(valor); //se llama nuevamente el método pero por izq
         }
     }else{
-      if(der == null){
-        der = new Node(valor);
+      if(der == null){ //se comprueba si el nodo der está vacio
+        der = new Node(valor); //se le da un valor al nodo der
        }else{
-        der.insertar(valor);
+        der.insertar(valor); //se llama nuevamente el método pero por der
        }
      }
   }
   public Boolean buscar(int valor){
-     if(valor == dato){
+     if(valor == dato){ //comprueba si valor está en head("El dato es el principal")
        return true;
-     }else if(valor < dato){
+     }else if(valor < dato){ //comprueba si valor está la rama izquierda
        if(izq == null){
          return false
          }else{
-           return izq.buscar(valor);
+           return izq.buscar(valor);  //se llama nuevamente el método pero por izq
           }
-     }else{
+     }else{ //comprueba si valor está la rama derecha
        if(der == null){
          return false;
          }else{
-           return der.buscar(valor);
+           return der.buscar(valor);  //se llama nuevamente el método pero por der
        }
      }
   }
 }
-
+//Python
+class Node{
+  Node left, right;//se crean dos nodos
+  dato; //un dato sin valor asignado
+  def Node(d){ 
+    dato = d; //se le asigna un valor al dato
+  }
+def insertar(node, n):
+  if node.data < n:
+    if node.left == None:
+       node.left == Node(n)
+       else:
+         insertar(node.left, n)
+  else:
+    if node.right == None:
+      node.right == Node(n)
+      else:
+        insertar(node.right, n)
 
 
 
