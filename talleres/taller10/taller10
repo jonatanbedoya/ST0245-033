@@ -1,0 +1,22 @@
+class node{
+  Node izq, der;
+  int dato;
+  public Node(int dato){
+    this.dato = dato;
+  }
+  public void insertar(int valor){
+    if(valor <= dato){
+     if(izq == null){
+       izq = new Node(valor);
+     }else{
+       izq.insertar(valor);
+       }
+    }else{
+      if(der == null){
+        der = new Node(valor);
+       }else{
+        der.insertar(valor);
+        }
+     }
+   }
+}
