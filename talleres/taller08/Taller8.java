@@ -55,7 +55,7 @@ public class Taller8 {
   * Nota: Se debe imprimir en consola a quién atiende y sacarlo de la cola
   * existe una función "pull" que hace el trabajo más fácil 
   */
-  public static void cola(Queue<String> queue){
+  public static void cola(Queue<String> queue){//Completar
      // while (....)    
           //System.out.println("Atendiendo a "+ queue._____());
   }
