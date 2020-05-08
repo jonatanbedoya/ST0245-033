@@ -1,4 +1,4 @@
-package Taller5;
+package talleres;
 /**
  * @author 
  */
