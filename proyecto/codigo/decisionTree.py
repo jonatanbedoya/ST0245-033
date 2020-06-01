@@ -2,26 +2,7 @@
 @GoogleDevelopers
 """
 from __future__ import print_function
-
-# Toy dataset.
-# Format: each row is an example.
-# The last column is the label.
-# The first two columns are features.
-# Feel free to play with it by adding more features & examples.
-# Interesting note: I've written this so the 2nd and 5th examples
-# have the same features, but different labels - so we can see how the
-# tree handles this case.
-training_data = [
-    ['Green', 3, 'Apple'],
-    ['Yellow', 3, 'Apple'],
-    ['Red', 1, 'Grape'],
-    ['Red', 1, 'Grape'],
-    ['Yellow', 3, 'Lemon'],]
-
-# Column labels.
-# These are used only to print the tree.
-header = ["color", "diameter", "label"]
-"""
+"""Modificar
 he = []
 header = []
 training_data = []
@@ -42,20 +23,33 @@ with open('algo.csv', 'r') as archivo:
     for l in lineas:
         lin = l.split()
         training_data.append(lin)
+    print(header)
     m = len(training_data)
     for i in range(0,m):
         train.append(training_data[i])
-    training_data = train
+    print(train)
 """
+training_data = [
+    ['Green', 3, 'Apple'],
+    ['Yellow', 3, 'Apple'],
+    ['Red', 1, 'Grape'],
+    ['Red', 1, 'Grape'],
+    ['Yellow', 3, 'Lemon'],
+]
+
+# Column labels.
+# These are used only to print the tree.
+header = ["color", "diameter", "label"]
+
 def unique_vals(rows, col):
     """Find the unique values for a column in a dataset."""
     return set([row[col] for row in rows])
 
 def class_counts(rows):
-    """Counts the number of each type of example in a dataset."""
-    counts = {}  # a dictionary of label -> count.
+    """cuenta el número de cada tipo de ejemplo en un "dataset"."""
+    counts = {} #un diccionario de etiqueta
     for row in rows:
-        # in our dataset format, the label is always the last column
+        #En nuestro formato dataset, la etiqueta es siempre la última columna
         label = row[-1]
         if label not in counts:
             counts[label] = 0
@@ -63,17 +57,12 @@ def class_counts(rows):
     return counts
 
 def is_numeric(value):
-    """Test if a value is numeric."""
+    """Evalua si el valor es un número."""
     return isinstance(value, int) or isinstance(value, float)
 
 class Question:
-    """A Question is used to partition a dataset.
-    This class just records a 'column number' (e.g., 0 for Color) and a
-    'column value' (e.g., Green). The 'match' method is used to compare
-    the feature value in an example to the feature value stored in the
-    question. See the demo below.
+    """Una pregunta es usada para dividir(Particionar) un dataset.
     """
-
     def __init__(self, column, value):
         self.column = column
         self.value = value
@@ -93,13 +82,13 @@ class Question:
         condition = "=="
         if is_numeric(self.value):
             condition = ">="
-        return "Is %s %s %s?" % (
-            header[self.column], condition, str(self.value))
-
+        return "Is %s %s %s?" % (header[self.column], condition, str(self.value))
+    
 def partition(rows, question):
-    """Partitions a dataset.
-    For each row in the dataset, check if it matches the question. If
-    so, add it to 'true rows', otherwise, add it to 'false rows'.
+    """Partición o división del dataset.
+    Para cada fila en el dataset, se comprueba si coincide con la
+    pregunta, si es correcto se añade a 'true rows' de lo contrario
+    se añade a 'false true'.
     """
     true_rows, false_rows = [], []
     for row in rows:
@@ -110,29 +99,29 @@ def partition(rows, question):
     return true_rows, false_rows
 
 def gini(rows):
-    """Calculate the Gini Impurity for a list of rows.
-    There are a few different ways to do this, I thought this one was
-    the most concise. See:
-    https://en.wikipedia.org/wiki/Decision_tree_learning#Gini_impurity
+    """Calcula la impureza de Gini fara una lista de filas.
+    Hay muchas maneras para hacer esto, Se utilizará está:
+    Ver:
     """
     counts = class_counts(rows)
     impurity = 1
     for lbl in counts:
-        prob_of_lbl = counts[lbl] / float(len(rows))
+        prob_of_lbl = counts[lbl]/ float(len(row))
         impurity -= prob_of_lbl**2
     return impurity
 
 def info_gain(left, right, current_uncertainty):
-    """Information Gain.
-    The uncertainty of the starting node, minus the weighted impurity of
-    two child nodes.
+    """Calcula la ganancia de información.
+    Se trabaja con la incertidumbre del nodo inicial, menos
+    la impureza ponderada de los dos nodos secundarios.
     """
     p = float(len(left)) / (len(left) + len(right))
     return current_uncertainty - p * gini(left) - (1 - p) * gini(right)
 
 def find_best_split(rows):
-    """Find the best question to ask by iterating over every feature / value
-    and calculating the information gain."""
+    """Busca la mejor pregunta para hacer la iteración sobre cada
+    caracteristica/valor y calcula la ganancia de información.
+    """
     best_gain = 0  # keep track of the best information gain
     best_question = None  # keep train of the feature / value that produced it
     current_uncertainty = gini(rows)
@@ -162,24 +151,24 @@ def find_best_split(rows):
             # toy dataset.
             if gain >= best_gain:
                 best_gain, best_question = gain, question
-
+                
     return best_gain, best_question
 
 class Leaf:
-    """A Leaf node classifies data.
-    This holds a dictionary of class (e.g., "Apple") -> number of times
-    it appears in the rows from the training data that reach this leaf.
     """
-
-    def __init__(self, rows):
+    A leaf node classifies data.
+    It holds a dictionary of class -> number of times it appears in the rows 
+    from the training data that reached the leaf.
+    """
+    def _init_(self, rows):
         self.predictions = class_counts(rows)
         
 class Decision_Node:
-    """A Decision Node asks a question.
-    This holds a reference to the question, and to the two child nodes.
     """
-
-    def __init__(self,question,true_branch,false_branch):
+    A decision node asks a question.
+    It holds a reference to a question and to the two child nodes.
+    """
+    def _init_(self, question,true_branch,false_branch):
         self.question = question
         self.true_branch = true_branch
         self.false_branch = false_branch
@@ -218,7 +207,6 @@ def build_tree(rows):
     # dependingo on the answer.
     return Decision_Node(question, true_branch, false_branch)
 
-
 def print_tree(node, spacing=""):
     """World's most elegant tree printing function."""
 
@@ -237,8 +225,7 @@ def print_tree(node, spacing=""):
     # Call this function recursively on the false branch
     print (spacing + '--> False:')
     print_tree(node.false_branch, spacing + "  ")
-
-
+    
 def classify(row, node):
     """See the 'rules of recursion' above."""
 
@@ -255,11 +242,11 @@ def classify(row, node):
         return classify(row, node.false_branch)
 
 def print_leaf(counts):
-    """A nicer way to print the predictions at a leaf."""
+    """ A nicer way to print the predictions at a leaf. """
     total = sum(counts.values()) * 1.0
     probs = {}
     for lbl in counts.keys():
-        probs[lbl] = str(int(counts[lbl] / total * 100)) + "%"
+        probs[lbl] = str(int(counts[lbl] / total * 100)) + '%'
     return probs
 
 if __name__ == '__main__':
@@ -267,16 +254,3 @@ if __name__ == '__main__':
     my_tree = build_tree(training_data)
 
     print_tree(my_tree)
-
-    # Evaluate
-    testing_data = [
-        ['Green', 3, 'Apple'],
-        ['Yellow', 4, 'Apple'],
-        ['Red', 2, 'Grape'],
-        ['Red', 1, 'Grape'],
-        ['Yellow', 3, 'Lemon'],
-    ]
-
-    for row in testing_data:
-        print ("Actual: %s. Predicted: %s" %
-               (row[-1], print_leaf(classify(row, my_tree))))
