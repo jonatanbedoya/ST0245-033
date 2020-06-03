@@ -1,7 +1,8 @@
 from __future__ import print_function
 import time
 import pandas as pd
-# Este método sirve para cargar los datos de entrenamiento y prueba para el árbol de decisión
+
+# Este método sirve para cargar los datos de prueba y training_data para el árbol de decisión
 # además permite obtener el header del csv para utilizarlas en las preguntas
 def carga_datos(ruta_entrenamiento,ruta_prueba):
     datos_entrenamiento = []
@@ -66,38 +67,38 @@ def carga_datos(ruta_entrenamiento,ruta_prueba):
 training_data, data_array_test, header = carga_datos("Datos/train.csv",
                                                      "Datos/test.csv")
 
-
+#Este método permite obtener los valores únicos que hay en la columna interesada (éxito)
 def unique_vals(rows, col):
-    """Find the unique values for a column in a dataset."""
     return set([row[col] for row in rows])
 
 
-
+#Este método cuenta la cantidad de valores iguales que existen en una columna del data set
 def class_counts(rows):
-    """Counts the number of each type of example in a dataset."""
-    counts = {}  # a dictionary of label -> count.
+    counts = {}  #diccionario para contar en la columna de exito, en este caso cantidad de 1s y 0s.
     for row in rows:
-        # in our dataset format, the label is always the last column
+        # La última columna es la de exito, por lo tanto nuestra variable de decisión
         label = row[-1]
         if label not in counts:
             counts[label] = 0
         counts[label] += 1
     return counts
 
-
+#Este método permite conocer cuál es el tipo de dato que se encuentra en la columna
+#es necesario conocer el tipo para establecer la pregunta adecuada
 def is_numeric(value):
-    """Test if a value is numeric."""
-    return isinstance(value, int) or isinstance(value, float)
+    return isinstance(value, int) or isinstance(value, float)#devuelve falso si es un string o verdadero de lo contrario
 
 class Question:
-    
+    # En esta clase se generan las preguntas que ayudan a partir el data set
+    # estas preguntas surgen del information gain, pues es este quien dice cuales son las variables realmente.
+    # Importate, la clase guarda una columna con los valores y el item para realizar la pregunta
     def __init__(self, column, value):
         self.column = column
         self.value = value
 
     def match(self, example):
-        # Compare the feature value in an example to the
-        # feature value in this question.
+       #El método match realiza la comparación validando el tipo de dato en la pregunta.
+       # Numérico o string.
         val = example[self.column]
         if is_numeric(val):
             return val >= self.value
@@ -105,19 +106,16 @@ class Question:
             return val == self.value
 
     def __repr__(self):
-        # This is just a helper method to print
-        # the question in a readable format.
+        # Según el criterio de comparación, se indica >= para número, == para string
         condition = "=="
         if is_numeric(self.value):
             condition = ">="
         return "Is %s %s %s?" % (
             header[self.column], condition, str(self.value))
-
+    
+# Permite subdividir los datos en aquellos que sí cumplen con la pregunta y los que no, esto se hace
+# con el fin de crear las ramas del árbol
 def partition(rows, question):
-    """Partitions a dataset.
-    For each row in the dataset, check if it matches the question. If
-    so, add it to 'true rows', otherwise, add it to 'false rows'.
-    """
     true_rows, false_rows = [], []
     for row in rows:
         if question.match(row):
@@ -126,12 +124,10 @@ def partition(rows, question):
             false_rows.append(row)
     return true_rows, false_rows
 
+#Calcula la impureza de gini para una lista (o grupo) de filas
+#Es un método de ayuda.
+#Ver más en: https://en.wikipedia.org/wiki/Decision_tree_learning#Gini_impurity
 def gini(rows):
-    """Calculate the Gini Impurity for a list of rows.
-    There are a few different ways to do this, I thought this one was
-    the most concise. See:
-    https://en.wikipedia.org/wiki/Decision_tree_learning#Gini_impurity
-    """
     counts = class_counts(rows)
     impurity = 1
     for lbl in counts:
@@ -139,64 +135,57 @@ def gini(rows):
         impurity -= prob_of_lbl**2
     return impurity
 
+# Calcula la incertidumbre entre el nodo de inicio
+# Menos la impureza ponderada de los dos nodos hijos (o ramas).
+# Se le conoce como ganancia de información
 def info_gain(left, right, current_uncertainty):
-    """Information Gain.
-    The uncertainty of the starting node, minus the weighted impurity of
-    two child nodes.
-    """
     p = float(len(left)) / (len(left) + len(right))
     return current_uncertainty - p * gini(left) - (1 - p) * gini(right)
 
+# Método que ayuda a encontrar la mejor pregunta para realizar iterando
+# entre cada característica/valor, Calculando su ganancía de información
 def find_best_split(rows):
-    """Find the best question to ask by iterating over every feature / value
-    and calculating the information gain."""
-    best_gain = 0  # keep track of the best information gain
-    best_question = None  # keep train of the feature / value that produced it
+    best_gain = 0  # Inicia un seguimiento de la ganancia de información
+    best_question = None  # Mantiene la característica/valor que se produjó
     current_uncertainty = gini(rows)
-    n_features = len(rows[0]) - 1  # number of columns
+    n_features = len(rows[0]) - 1  # número de columns
 
-    for col in range(n_features):  # for each feature
+    for col in range(n_features):  # Para cada carectirística
 
-        values = set([row[col] for row in rows])  # unique values in the column
+        values = set([row[col] for row in rows])  # Valor único en las columna
 
-        for val in values:  # for each value
+        for val in values:  # para cada valor
 
             question = Question(col, val)
 
-            # try splitting the dataset
+            # Intenta dividir los datos
             true_rows, false_rows = partition(rows, question)
 
-            # Skip this split if it doesn't divide the
-            # dataset.
+            # Omite está división sino divide los datos.
             if len(true_rows) == 0 or len(false_rows) == 0:
                 continue
 
-            # Calculate the information gain from this split
+            # Calcula la ganancia de información de la división
             gain = info_gain(true_rows, false_rows, current_uncertainty)
-
-            # You actually can use '>' instead of '>=' here
-            # but I wanted the tree to look a certain way for our
-            # toy dataset.
+            # Se puede modificar el criterío de evaluación, según
+            # lo que se quiera obtener se utilizó >= en nuestro caso.
+            # Puede afectar la Exactitud
             if gain >= best_gain:
                 best_gain, best_question = gain, question
 
     return best_gain, best_question
 
+#Un nodo Hoja clasifica los datos.
+#Esto contiene un diccionario de clase (por ejemplo para estatus, "3") -> número de veces
+#aparece en las filas de training_data que llegan a esta hoja.
 class Leaf:
-    """A Leaf node classifies data.
-    This holds a dictionary of class (e.g., "Apple") -> number of times
-    it appears in the rows from the training data that reach this leaf.
-    """
-
     def __init__(self, rows):
         self.predictions = class_counts(rows)
 
-
+#Un nodo de decisión hace una pregunta.
+#Esto contiene una referencia a la pregunta y a los dos nodos hijos.
 class Decision_Node:
-    """A Decision Node asks a question.
-    This holds a reference to the question, and to the two child nodes.
-    """
-
+    
     def __init__(self,
                  question,
                  true_branch,
@@ -205,77 +194,73 @@ class Decision_Node:
         self.true_branch = true_branch
         self.false_branch = false_branch
 
-
+# Construye un árbol.
+# Rules of recursion: 1) Believe that it works. 2) Start by checking
+# for the base case (no further information gain). 3) Prepare for
+# giant stack traces.
 def build_tree(rows):
-    """Builds the tree.
-    Rules of recursion: 1) Believe that it works. 2) Start by checking
-    for the base case (no further information gain). 3) Prepare for
-    giant stack traces.
-    """
-
-    # Try partitioing the dataset on each of the unique attribute,
-    # calculate the information gain,
-    # and return the question that produces the highest gain.
+    # Intenta dividir el conjunto de datos en cada atributo único
+    # Calcula la ganancia de información
+    # Devuelve la pregunta que produce la mayor ganancia de informacion
     gain, question = find_best_split(rows)
 
-    # Base case: no further info gain
-    # Since we can ask no further questions,
-    # we'll return a leaf.
+    # Caso base: no más ganancia de información
+    # Como no podemos hacer más preguntas,
+    # Devolvemos una hoja
     if gain == 0:
         return Leaf(rows)
 
-    # If we reach here, we have found a useful feature / value
-    # to partition on.
+    # Si llegamos aquí, Se encontró una característica/valor útil
+    # para particionar.
     true_rows, false_rows = partition(rows, question)
 
-    # Recursively build the true branch.
+    # Recursivamente construye la rama (hijo) verdadera.
     true_branch = build_tree(true_rows)
 
-    # Recursively build the false branch.
+    # Recursivamente construye la rama (hijo) falsa.
     false_branch = build_tree(false_rows)
 
-    # Return a Question node.
-    # This records the best feature / value to ask at this point,
-    # as well as the branches to follow
-    # dependingo on the answer.
+    # Devuelve un nodo pregunta
+    # Guarda la mejor característica/valor para preguntar en este momento
+    # así como las ramas a seguir dependiendo de la respuesta.
     return Decision_Node(question, true_branch, false_branch)
 
-
+# Método que ayuda a "mostrar" el arbol  
 def print_tree(node, spacing=""):
-    """World's most elegant tree printing function."""
 
-    # Base case: we've reached a leaf
+    # Caso base: hemos llegado a una hoja
     if isinstance(node, Leaf):
         print (spacing + "Predict", node.predictions)
         return
 
-    # Print the question at this node
+    # Imprime la pregunta en este nodo
     print (spacing + str(node.question))
 
-    # Call this function recursively on the true branch
+    # Llama a esta función recursivamente en la rama (o hijo) verdadera
     print (spacing + '--> True:')
     print_tree(node.true_branch, spacing + "  ")
 
-    # Call this function recursively on the false branch
+    # Llama a esta función recursivamente en la rama (o hijo) falsa
     print (spacing + '--> False:')
     print_tree(node.false_branch, spacing + "  ")
 
 
 def classify(row, node):
-    """See the 'rules of recursion' above."""
+    """Ver las reglas de recursión, arriba."""
 
-    # Base case: we've reached a leaf
+    # Caso base: hemos llegado a una hoja
     if isinstance(node, Leaf):
         return node.predictions
-
-    # Decide whether to follow the true-branch or the false-branch.
-    # Compare the feature / value stored in the node,
-    # to the example we're considering.
+    
+    # Decide seguir ya sea, la rama verdadera o la rama falsa
+    # Compare la característica / valor almacenado en el nodo
+    # Vamos a considerar (Se puede modificar).
     if node.question.match(row):
         return classify(row, node.true_branch)
     else:
         return classify(row, node.false_branch)
-    
+# Método que compara los datos_test con nuestro valores predecidos
+# se obtiene una exactitud entre 0 y 100
 def Exactitud(data_array_test, arbol):
     valores_reales = []
     valores_predecidos = []
@@ -292,15 +277,18 @@ def Exactitud(data_array_test, arbol):
             total += 1
     
     return (print('Exactitud: ' +str((total/len(valores_reales))*100) +'%'))
-    
+
+# Una mejor manera de imprimir las predicciones en una hoja
 def print_leaf(counts):
-    """A nicer way to print the predictions at a leaf."""
     total = sum(counts.values()) * 1.0
     probs = {}
     for lbl in counts.keys():
         probs[lbl] = str(int(counts[lbl] / total * 100)) + "%"
     return probs
 
+# Para ejecutar, calcula un tiempo promedio de ejecución de 100 ejecuciones
+# construye el arbol con el training_data & header
+# Muestra la Exactitud de nuestro árbol 
 if __name__ == '__main__':
   tiempopromedio = []
   for i in range(0,100):
